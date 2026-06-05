@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arquivos do Acervo - Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Playfair Display', serif; background-color: #f4ecd8; color: #3e3124; background-image: url('https://www.transparenttextures.com/patterns/aged-paper.png');}
+    </style>
+</head>
+<body class="min-h-screen p-10">
+
+    <div class="max-w-5xl mx-auto">
+        <div class="flex justify-between items-center mb-8">
+            <h1 class="text-5xl font-bold text-[#5c4731] tracking-wider uppercase" id="titulo">Acervo Solidário</h1>
+            <a href="index.html" class="text-[#8c6b42] hover:underline text-xl italic">&larr; Voltar ao Registro</a>
+        </div>
+
+        <div id="status-mensagem" class="text-center my-6 hidden text-xl italic font-bold"></div>
+
+        <div class="bg-[#fbf8f1] border-2 border-[#a68a61] shadow-2xl overflow-hidden rounded">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="bg-[#e8dcb8] text-[#5c4731] border-b-2 border-[#a68a61]">
+                        <th class="p-4 font-bold uppercase tracking-wider">Doador</th>
+                        <th class="p-4 font-bold uppercase tracking-wider">Doação</th>
+                        <th class="p-4 font-bold uppercase tracking-wider">Quantidade</th>
+                        <th class="p-4 font-bold uppercase tracking-wider">Classificação</th>
+                    </tr>
+                </thead>
+                <tbody id="tabela-corpo">
+                    </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script>
+        gsap.from("#titulo", { duration: 1.2, opacity: 0, x: -50, ease: "power2.out" });
+        
+        window.onload = async () => {
+            const tbody = document.getElementById('tabela-corpo');
+            const msgStatus = document.getElementById('status-mensagem');
+
+            try {
+                const response = await fetch('/api/estoque');
+                if (!response.ok) throw new Error("Erro no servidor");
+
+                const dados = await response.json();
+                
+                if (dados.length === 0) {
+                    msgStatus.innerText = "📜 Nenhuma doação registrada.";
+                    msgStatus.style.color = "#7a6248";
+                    msgStatus.classList.remove('hidden');
+                    return;
+                }
+
+                tbody.innerHTML = "";
+                dados.forEach((linha) => {
+                    const tr = document.createElement('tr');
+                    tr.className = "border-b border-[#d1c2a3] hover:bg-[#f1e6d0] transition-colors item-tabela";
+                    tr.innerHTML = `
+                        <td class="p-4 font-bold">${linha.nome_doador}</td>
+                        <td class="p-4 italic">${linha.descricao_item}</td>
+                        <td class="p-4">${linha.quantidade} ${linha.tipo_medida}</td>
+                        <td class="p-4">${linha.nome_categoria}</td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+
+                gsap.from(".item-tabela", { duration: 0.6, opacity: 0, y: 20, stagger: 0.1, ease: "power1.out" });
+            } catch (error) {
+                msgStatus.innerText = "❌ Erro ao conectar com os arquivos.";
+                msgStatus.style.color = "#c62828";
+                msgStatus.classList.remove('hidden');
+            }
+        };
+    </script>
+</body>
+</html>

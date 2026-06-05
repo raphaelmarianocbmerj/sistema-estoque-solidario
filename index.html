@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro de Dádivas - Renascimento</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Playfair Display', serif; background-color: #f4ecd8; color: #3e3124; background-image: url('https://www.transparenttextures.com/patterns/aged-paper.png'); }
+        .input-classic { width: 100%; padding: 0.75rem; margin-bottom: 1rem; background-color: #fbf6ec; border: 1px solid #a68a61; border-radius: 0.25rem; box-shadow: inset 0 2px 4px 0 rgba(0,0,0,0.06); outline: none; }
+        .input-classic:focus { box-shadow: 0 0 0 2px #8c6b42; }
+        .aba-ativa { font-weight: bold; color: #8c6b42; border-bottom: 2px solid #8c6b42; padding-bottom: 0.25rem; cursor: pointer; }
+        .aba-inativa { font-weight: bold; color: #9ca3af; cursor: pointer; padding-bottom: 0.25rem; }
+        .aba-inativa:hover { color: #5c4731; }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-6">
+
+    <div id="main-card" class="bg-[#fbf8f1] border-2 border-[#8c6b42] p-8 rounded-lg shadow-[0_10px_30px_rgba(62,49,36,0.3)] max-w-2xl w-full relative overflow-hidden">
+        
+        <div class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-[#5c4731] tracking-wider uppercase mb-2">Registro de Doações</h1>
+            <p class="italic text-[#7a6248]">Igreja de Nossa Senhora Aparecida</p>
+        </div>
+
+        <div class="flex gap-6 mb-6 border-b border-[#d1c2a3] pb-2">
+            <div id="tab-novo" class="aba-ativa" onclick="alternarAba('novo')">Novo Doador</div>
+            <div id="tab-existente" class="aba-inativa" onclick="alternarAba('existente')">Doador Conhecido</div>
+        </div>
+
+        <form id="formDoacao">
+            <div id="sessao-novo-doador">
+                <input type="text" id="nomeDoador" placeholder="Nome do Doador" class="input-classic">
+                <input type="text" id="telDoador" placeholder="Contato (Opcional)" class="input-classic">
+            </div>
+
+            <div id="sessao-doador-existente" class="hidden">
+                <select id="idDoadorExistente" class="input-classic">
+                    <option value="">Selecione o Doador...</option>
+                </select>
+            </div>
+
+            <label class="block mb-1 mt-4 font-bold text-[#5c4731]">Item</label>
+            <input type="text" id="descricao" placeholder="Ex: Trigo, Azeite, Vestes..." required class="input-classic">
+
+            <div class="flex gap-4">
+                <div class="w-1/2">
+                    <label class="block mb-1 font-bold text-[#5c4731]">Quantidade</label>
+                    <input type="number" id="quantidade" required class="input-classic">
+                </div>
+                <div class="w-1/2">
+                    <label class="block mb-1 font-bold text-[#5c4731]">Medida</label>
+                    <select id="tipoMedida" required class="input-classic">
+                        <option value="Unidade">Unidade(s)</option>
+                        <option value="Kg">Quilo(s) - Kg</option>
+                    </select>
+                </div>
+            </div>
+
+            <label class="block mb-1 font-bold text-[#5c4731]">Classificação (Categoria)</label>
+            <select id="idCategoria" required class="input-classic">
+                <option value="">Selecione a Categoria...</option>
+            </select>
+
+            <button type="submit" class="w-full bg-[#8c6b42] hover:bg-[#5c4731] text-[#fbf6ec] text-xl py-3 rounded transition-colors duration-300 uppercase tracking-widest mt-4 border border-[#3e3124]">
+                Registrar Doação
+            </button>
+        </form>
+
+        <p id="mensagem" class="mt-4 text-center font-bold"></p>
+
+        <div class="mt-6 text-center">
+            <a href="dashboard.html" class="text-[#8c6b42] hover:underline italic">Consultar os Arquivos (Dashboard) &rarr;</a>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script>
+        gsap.from("#main-card", { duration: 1.5, y: 50, opacity: 0, ease: "power3.out" });
+
+        let modoDoador = 'novo'; 
+        function alternarAba(modo) {
+            modoDoador = modo;
+            if (modo === 'novo') {
+                document.getElementById('tab-novo').className = 'aba-ativa';
+                document.getElementById('tab-existente').className = 'aba-inativa';
+                document.getElementById('sessao-novo-doador').classList.remove('hidden');
+                document.getElementById('sessao-doador-existente').classList.add('hidden');
+            } else {
+                document.getElementById('tab-existente').className = 'aba-ativa';
+                document.getElementById('tab-novo').className = 'aba-inativa';
+                document.getElementById('sessao-doador-existente').classList.remove('hidden');
+                document.getElementById('sessao-novo-doador').classList.add('hidden');
+            }
+        }
+
+        window.onload = async () => {
+            try {
+                const resCat = await fetch('/api/categorias');
+                const categorias = await resCat.json();
+                categorias.forEach(c => document.getElementById('idCategoria').innerHTML += `<option value="${c.id_categoria}">${c.nome_categoria}</option>`);
+
+                const resDoa = await fetch('/api/doadores');
+                const doadores = await resDoa.json();
+                doadores.forEach(d => document.getElementById('idDoadorExistente').innerHTML += `<option value="${d.id_doador}">${d.nome}</option>`);
+            } catch (error) {
+                console.error("Erro ao carregar dados.", error);
+            }
+        };
+
+        document.getElementById('formDoacao').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            let idDoador = null;
+            try {
+                if (modoDoador === 'novo') {
+                    const nome = document.getElementById('nomeDoador').value;
+                    const telefone = document.getElementById('telDoador').value;
+                    const resDoador = await fetch('/api/doadores', {
+                        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ nome, telefone })
+                    });
+                    const dataDoador = await resDoador.json();
+                    idDoador = dataDoador.id_doador;
+                } else {
+                    idDoador = document.getElementById('idDoadorExistente').value;
+                }
+
+                const doacao = {
+                    descricao: document.getElementById('descricao').value,
+                    quantidade: document.getElementById('quantidade').value,
+                    tipoMedida: document.getElementById('tipoMedida').value,
+                    idCategoria: document.getElementById('idCategoria').value,
+                    idDoador: idDoador
+                };
+
+                const resDoacao = await fetch('/api/doacoes', {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(doacao)
+                });
+
+                if(resDoacao.ok) {
+                    document.getElementById('mensagem').innerText = "✓ Oferenda registrada com sucesso nos pergaminhos.";
+                    document.getElementById('mensagem').style.color = "#2e7d32";
+                    document.getElementById('formDoacao').reset();
+                }
+            } catch (error) {
+                document.getElementById('mensagem').innerText = "❌ Erro ao registrar nos arquivos.";
+                document.getElementById('mensagem').style.color = "#c62828";
+            }
+        });
+    </script>
+</body>
+</html>
