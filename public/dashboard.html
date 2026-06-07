@@ -51,7 +51,7 @@
                 const dados = await response.json();
                 
                 if (dados.length === 0) {
-                    msgStatus.innerText = "📜 Nenhuma doação registrada.";
+                    msgStatus.innerText = "Nenhuma doação registrada.";
                     msgStatus.style.color = "#7a6248";
                     msgStatus.classList.remove('hidden');
                     return;
@@ -72,7 +72,7 @@
 
                 gsap.from(".item-tabela", { duration: 0.6, opacity: 0, y: 20, stagger: 0.1, ease: "power1.out" });
             } catch (error) {
-                msgStatus.innerText = "❌ Erro ao conectar com os arquivos.";
+                msgStatus.innerText = "Erro ao conectar com os arquivos.";
                 msgStatus.style.color = "#c62828";
                 msgStatus.classList.remove('hidden');
             }
