@@ -57,9 +57,9 @@ let db;
                 ('Higiene e Limpeza');
             `);
         }
-        console.log('✅ Banco de dados SQLite pronto a utilizar na pasta local!');
+        console.log('Banco de dados SQLite pronto a utilizar na pasta local!');
     } catch (error) {
-        console.error('❌ Erro ao iniciar o banco de dados:', error);
+        console.error('Erro ao iniciar o banco de dados:', error);
     }
 })();
 
@@ -106,7 +106,7 @@ app.get('/api/estoque', async (req, res) => {
 // Ligar o Servidor
 const PORT = 3000;
 app.listen(PORT, () => {
-    console.log(`🚀 Sistema rodando na porta ${PORT}! Abrindo navegador...`);
+    console.log(`Sistema rodando na porta ${PORT}! Abrindo navegador...`);
     // Abre o navegador automaticamente
     require('child_process').exec(`start http://localhost:${PORT}`);
 });
