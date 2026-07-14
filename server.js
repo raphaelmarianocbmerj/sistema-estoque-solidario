@@ -103,6 +103,37 @@ app.get('/api/estoque', async (req, res) => {
     res.json(rows);
 });
 
+// === NOVAS ROTAS: EDITAR E DELETAR ===
+
+// Rota para Excluir um registro (DELETE)
+app.delete('/api/doacoes/:id', async (req, res) => {
+    try {
+        const id = req.params.id;
+        await db.run('DELETE FROM Doacao_Estoque WHERE id_doacao = ?', [id]);
+        res.status(200).send('Registro apagado dos arquivos.');
+    } catch (error) {
+        console.error('Erro ao deletar:', error);
+        res.status(500).send('Erro ao apagar registro.');
+    }
+});
+
+// Rota para Editar um registro (PUT)
+app.put('/api/doacoes/:id', async (req, res) => {
+    try {
+        const id = req.params.id;
+        const { descricao, quantidade, tipoMedida } = req.body;
+        
+        await db.run(
+            'UPDATE Doacao_Estoque SET descricao_item = ?, quantidade = ?, tipo_medida = ? WHERE id_doacao = ?',
+            [descricao, quantidade, tipoMedida, id]
+        );
+        res.status(200).send('Registro atualizado com sucesso.');
+    } catch (error) {
+        console.error('Erro ao editar:', error);
+        res.status(500).send('Erro ao atualizar registro.');
+    }
+});
+
 // Ligar o Servidor
 const PORT = 3000;
 app.listen(PORT, () => {
